@@ -29,7 +29,7 @@ class Note
     private string $text;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Tag")
+     * @ORM\ManyToMany(targetEntity="Tag", inversedBy="notes")
      */
     private Collection $tags;
 
@@ -37,5 +37,31 @@ class Note
     {
         $this->text = $text;
         $this->tags = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getText(): string
+    {
+        return $this->text;
+    }
+
+    /**
+     * @return ArrayCollection|Collection|Tag[]
+     */
+    public function getTags(): ArrayCollection|Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): void
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags[] = $tag;
+            $tag->addNote($this);
+        }
     }
 }

@@ -5,8 +5,10 @@ namespace App\Service;
 
 
 use App\Entity\Note;
+use App\Entity\Tag;
 use App\Repository\NoteRepository;
-use Symfony\Component\String\UnicodeString;
+use App\Repository\TagRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use TgBotApi\BotApiBase\Method\SendMessageMethod;
 
 class NoteService
@@ -17,11 +19,20 @@ class NoteService
      */
     private $textParser;
     private NoteRepository $noteRepository;
+    private TagRepository $tagRepository;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(TextParser $textParser, NoteRepository $noteRepository)
+    public function __construct(
+        TextParser $textParser,
+        NoteRepository $noteRepository,
+        TagRepository $tagRepository,
+        EntityManagerInterface $entityManager
+    )
     {
         $this->textParser = $textParser;
         $this->noteRepository = $noteRepository;
+        $this->tagRepository = $tagRepository;
+        $this->entityManager = $entityManager;
     }
 
     public function add(int $chatId, string $text): void
@@ -29,10 +40,15 @@ class NoteService
         $noteData = $this->textParser->parseNoteAndTags($text);
 
         $note = new Note($noteData['text']);
+        $this->noteRepository->add($note);
 
-        $this->noteRepository->save($note);
+        foreach ($noteData['tags'] as $tagData) {
+            $tag = new Tag($tagData);
+            $note->addTag($tag);
+            $this->tagRepository->add($tag);
+        }
 
-
+        $this->entityManager->flush();
 //        $note = [
 //            'text' => '12312312',
 //            'tags' => ['работа', 'отдых']

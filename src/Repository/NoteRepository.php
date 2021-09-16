@@ -15,9 +15,8 @@ class NoteRepository extends ServiceEntityRepository
         parent::__construct($registry, Note::class);
     }
 
-    public function save(Note $note): void
+    public function add(Note $note): void
     {
         $this->_em->persist($note);
-        $this->_em->flush($note);
     }
 }
