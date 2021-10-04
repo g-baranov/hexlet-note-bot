@@ -24,7 +24,7 @@ class Tag
 
     /**
      * @var string
-     * @ORM\Column(name="title", type="string", nullable=false)
+     * @ORM\Column(name="title", type="string", nullable=false, unique=true)
      */
     private string $title;
 
@@ -49,10 +49,10 @@ class Tag
         return $this->title;
     }
 
-    public function getNotes(): Collection
-    {
-        return $this->notes;
-    }
+//    public function getNotes(): Collection
+//    {
+//        return $this->notes;
+//    }
 
     public function addNote(Note $note): void
     {
