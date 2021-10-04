@@ -2,6 +2,5 @@
 
 ### Установка
 * Запустить ``` make install ```
-
-* Указать токен бота в .env.local `TELEGRAM_API_TOKEN`
+* Указать токен бота в .env.local `TG_BOT_API_KEY`
 * Запустить веб-сервер `make run-server`
