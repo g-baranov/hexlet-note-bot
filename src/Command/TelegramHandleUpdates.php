@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\NoteService;
+use App\Service\UserService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,12 +14,18 @@ class TelegramHandleUpdates extends Command
 {
     private $botApi;
     private NoteService $noteService;
+    private UserService $userService;
 
-    public function __construct(BotApiInterface  $botApi, NoteService $noteService, string $name = null)
+    public function __construct(
+        BotApiInterface $botApi,
+        NoteService $noteService,
+        UserService $userService,
+        string $name = null)
     {
         parent::__construct($name);
         $this->botApi = $botApi;
         $this->noteService = $noteService;
+        $this->userService = $userService;
     }
 
     // the name of the command (the part after "bin/console")
@@ -41,7 +48,10 @@ class TelegramHandleUpdates extends Command
         $updatesCount = count($updates);
 
         foreach ($updates as $update) {
-            $this->noteService->add($update->message->chat->id, $update->message->text);
+            $chatId = $update->message->chat->id;
+            $userName = $update->message->chat->username ?? uniqid('telegram_', true);
+            $user = $this->userService->findOrCreate($chatId, $userName);
+            $this->noteService->add($user, $update->message->text);
 
             file_put_contents($storageFilePath, $update->updateId);
         }

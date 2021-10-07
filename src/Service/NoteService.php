@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\Note;
 use App\Entity\Tag;
+use App\Entity\User;
 use App\Repository\NoteRepository;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,11 +36,11 @@ class NoteService
         $this->botApi = $botApi;
     }
 
-    public function add(int $chatId, string $text): void
+    public function add(User $user, string $text): void
     {
         $noteData = $this->textParser->parseNoteAndTags($text);
 
-        $note = new Note($noteData['text']);
+        $note = new Note($noteData['text'], $user);
         $this->noteRepository->add($note);
 
         $tags = $this->tagRepository->findBy(['title' => $noteData['tags']]);
@@ -60,7 +61,7 @@ class NoteService
 
         $this->entityManager->flush();
 
-        $method = SendMessageMethod::create($chatId, 'Заметка сохранена!');
+        $method = SendMessageMethod::create($user->getExternalId(), 'Заметка сохранена!');
         $this->botApi->send($method);
     }
 }
