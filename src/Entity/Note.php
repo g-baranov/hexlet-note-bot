@@ -33,10 +33,17 @@ class Note
      */
     private Collection $tags;
 
-    public function __construct(string $text)
+    /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="User")
+     */
+    private User $user;
+
+    public function __construct(string $text, User $user)
     {
         $this->text = $text;
         $this->tags = new ArrayCollection();
+        $this->user = $user;
     }
 
     public function getId(): ?int
@@ -63,5 +70,10 @@ class Note
             $this->tags[] = $tag;
             $tag->addNote($this);
         }
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
     }
 }
